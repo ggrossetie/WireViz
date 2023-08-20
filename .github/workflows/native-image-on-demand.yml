@@ -34,7 +34,7 @@ jobs:
         if: ${{ matrix.platform != 'linux-arm64' }}
       - name: Install system dependencies
         run: |
-          sudo apt-get install libfreetype6-dev ccache patchelf
+          sudo apt-get install libfreetype6-dev ccache patchelf graphviz
         # we can skip this step since system dependencies are already installed on the self-hosted runner.
         if: ${{ matrix.platform != 'linux-arm64' }}
       - name: Install project dependencies
