@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.3.3] (2023-08-20)
+
+- Add `--format` (`-f`) option on the CLI to specify the output format
+- Allow to read from stdin and write to stdout from the CLI
+- Build native images for Linux AMD64 and ARM64
+
 ## [0.3.2](https://github.com/formatc1702/WireViz/tree/v0.3.2) (2021-11-27)
 
 ### Hotfix
