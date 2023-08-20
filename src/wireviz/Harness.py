@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 
 from graphviz import Graph
 from collections import Counter
@@ -383,9 +384,9 @@ class Harness:
                             if value is None:
                                 entry, n_subs = re.subn(f'( +)?{attr}=("[^"]*"|[^] ]*)(?(1)| *)', '', entry)
                                 if n_subs < 1:
-                                    print(f'Harness.create_graph() warning: {attr} not found in {keyword}!')
+                                    sys.stderr.write(f'Harness.create_graph() warning: {attr} not found in {keyword}!')
                                 elif n_subs > 1:
-                                    print(f'Harness.create_graph() warning: {attr} removed {n_subs} times in {keyword}!')
+                                    sys.stderr.write(f'Harness.create_graph() warning: {attr} removed {n_subs} times in {keyword}!')
                                 continue
 
                             if len(value) == 0 or ' ' in value:
@@ -396,7 +397,7 @@ class Harness:
                                 # If attr not found, then append it
                                 entry = re.sub(r'\]$', f' {attr}={value}]', entry)
                             elif n_subs > 1:
-                                print(f'Harness.create_graph() warning: {attr} overridden {n_subs} times in {keyword}!')
+                                sys.stderr.write(f'Harness.create_graph() warning: {attr} overridden {n_subs} times in {keyword}!')
 
                         dot.body[i] = entry
 
@@ -435,6 +436,7 @@ class Harness:
         for f in fmt:
             graph.format = f
             graph.render(filename=filename, view=view, cleanup=cleanup)
+
         graph.save(filename=f'{filename}.gv')
         # bom output
         bomlist = bom_list(self.bom())

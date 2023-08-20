@@ -45,7 +45,7 @@ def collect_filenames(description, groupkey, ext_list):
     patterns = [f"{groups[groupkey]['prefix']}*{ext}" for ext in ext_list]
     if ext_list != input_extensions and readme in groups[groupkey]:
         patterns.append(readme)
-    print(f'{description} {groupkey} in "{path}"')
+    sys.stderr.write(f'{description} {groupkey} in "{path}"')
     return sorted([filename for pattern in patterns for filename in path.glob(pattern)])
 
 
@@ -61,7 +61,7 @@ def build_generated(groupkeys):
                 out.write(f'# {groups[key]["title"]}\n\n')
         # collect and iterate input YAML files
         for yaml_file in collect_filenames('Building', key, input_extensions):
-            print(f'  "{yaml_file}"')
+            sys.stderr.write(f'  "{yaml_file}"')
             wireviz.parse_file(yaml_file)
 
             if build_readme:
@@ -93,7 +93,7 @@ def clean_generated(groupkeys):
         # collect and remove files
         for filename in collect_filenames('Cleaning', key, generated_extensions):
             if filename.is_file():
-                print(f'  rm "{filename}"')
+                sys.stderr.write(f'  rm "{filename}"')
                 os.remove(filename)
 
 
@@ -105,7 +105,7 @@ def compare_generated(groupkeys, branch = '', include_graphviz_output = False):
         # collect and compare files
         for filename in collect_filenames('Comparing', key, compare_extensions):
             cmd = f'git --no-pager diff{branch} -- "{filename}"'
-            print(f'  {cmd}')
+            sys.stderr.write(f'  {cmd}')
             os.system(cmd)
 
 
@@ -122,7 +122,7 @@ def restore_generated(groupkeys, branch = ''):
         # restore files
         for filename in filename_list:
             cmd = f'git checkout{branch} -- "{filename}"'
-            print(f'  {cmd}')
+            sys.stderr.write(f'  {cmd}')
             os.system(cmd)
 
 

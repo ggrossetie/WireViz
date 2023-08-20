@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import sys
 from typing import Dict, List, Optional, Tuple, Union
 from dataclasses import dataclass, field, InitVar
 from pathlib import Path
@@ -246,7 +246,7 @@ class Cable:
             self.gauge = g
 
             if self.gauge_unit is not None:
-                print(f'Warning: Cable {self.name} gauge_unit={self.gauge_unit} is ignored because its gauge contains {u}')
+                sys.stderr.write(f'Warning: Cable {self.name} gauge_unit={self.gauge_unit} is ignored because its gauge contains {u}')
             if u.upper() == 'AWG':
                 self.gauge_unit = u.upper()
             else:
@@ -266,7 +266,7 @@ class Cable:
                 raise Exception(f'Cable {self.name} length={self.length} - Length must be a number, or number and unit separated by a space')
             self.length = L
             if self.length_unit is not None:
-                print(f'Warning: Cable {self.name} length_unit={self.length_unit} is ignored because its length contains {u}')
+                sys.stderr.write(f'Warning: Cable {self.name} length_unit={self.length_unit} is ignored because its length contains {u}')
             self.length_unit = u
         elif not any(isinstance(self.length, t) for t in [int, float]):
             raise Exception(f'Cable {self.name} length has a non-numeric value')

@@ -196,7 +196,7 @@ def parse(yaml_input: str, file_out: (str, Path) = None, return_types: (None, st
 
     if return_types is not None:
         returns = []
-        if isinstance(return_types, str): # only one return type speficied
+        if isinstance(return_types, str): # only one return type specified
             return_types = [return_types]
 
         return_types = [t.lower() for t in return_types]
@@ -229,6 +229,7 @@ def parse_cmdline():
         description='Generate cable and wiring harness documentation from YAML descriptions',
     )
     parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('-f', '--format', action='store', default='svg', type=str, help="Output formats.")
     parser.add_argument('input_file', action='store', type=str, metavar='YAML_FILE')
     parser.add_argument('-o', '--output_file', action='store', type=str, metavar='OUTPUT')
     # Not implemented: parser.add_argument('--generate-bom', action='store_true', default=True)
@@ -237,33 +238,52 @@ def parse_cmdline():
 
 
 def main():
-
     args = parse_cmdline()
 
-    if not os.path.exists(args.input_file):
-        print(f'Error: input file {args.input_file} inaccessible or does not exist, check path')
-        sys.exit(1)
-
-    with open_file_read(args.input_file) as fh:
-        yaml_input = fh.read()
-
-    if args.prepend_file:
-        if not os.path.exists(args.prepend_file):
-            print(f'Error: prepend input file {args.prepend_file} inaccessible or does not exist, check path')
+    # input file
+    input_file = args.input_file
+    if input_file is None or input_file == '-':
+        yaml_input = sys.stdin.read()
+    else:
+        if not os.path.exists(input_file):
+            sys.stderr.write(f'Error: input file {input_file} inaccessible or does not exist, check path')
             sys.exit(1)
-        with open_file_read(args.prepend_file) as fh:
+        with open_file_read(input_file) as fh:
+            yaml_input = fh.read()
+
+    # prepend file
+    prepend_file = args.prepend_file
+    if prepend_file:
+        if not os.path.exists(prepend_file):
+            sys.stderr.write(f'Error: prepend input file {prepend_file} inaccessible or does not exist, check path')
+            sys.exit(1)
+        with open_file_read(prepend_file) as fh:
             prepend = fh.read()
             yaml_input = prepend + yaml_input
 
-    if not args.output_file:
-        file_out = args.input_file
-        pre, _ = os.path.splitext(file_out)
-        file_out = pre  # extension will be added by graphviz output function
+    # output file
+    output_file = args.output_file
+    if output_file:
+        if str(output_file) == "-":
+            # write to stdout
+            file_out = None
+        else:
+            file_out = os.path.abspath(output_file)
     else:
-        file_out = args.output_file
-    file_out = os.path.abspath(file_out)
+        if input_file == '-':
+            # write to stdout
+            file_out = None
+        else:
+            file_out = input_file
+            pre, _ = os.path.splitext(file_out)
+            file_out = os.path.abspath(pre)  # extension will be added by graphviz output function
 
-    parse(yaml_input, file_out=file_out)
+    output = parse(yaml_input, file_out=file_out, return_types=args.format)
+    if file_out is None:
+        if isinstance(output, (bytes, bytearray)):
+            sys.stdout.buffer.write(output)
+        else:
+            sys.stdout.write(output)
 
 
 if __name__ == '__main__':
